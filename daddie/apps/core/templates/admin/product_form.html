@@ -1,0 +1,16 @@
+{% extends "admin/change_form.html" %}
+
+{% block after_related_objects %}
+{% load ctx %}
+<div class="tabular">
+  <fieldset class="module">
+    <h2>Builds</h2>
+    <table>
+      <tr><th>Build</th><th>Created</th></tr>
+      {% for build in original.builds.all %}
+      <tr><td><a href="{% link_build build %}">{{ build.name }}</a></td><td>{{ build.created }}</td></tr>
+      {% endfor %}
+    </table>
+  </fieldset>
+</div>
+{% endblock %}

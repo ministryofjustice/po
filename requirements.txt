@@ -1,0 +1,7 @@
+django
+djangorestframework
+requests
+markdown
+mock==1.0.1
+nose
+django-nose

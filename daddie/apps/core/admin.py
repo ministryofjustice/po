@@ -1,9 +1,7 @@
-from distutils.versionpredicate import VersionPredicate
 import re
 
 from django.contrib import admin
-from django.db.models import Min
-from django.utils.safestring import mark_safe
+from genericadmin.admin import GenericAdminModelAdmin
 
 from models import Service, Product, Build, AlertType, Deployment, Package,\
     Alert
@@ -24,37 +22,14 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', service_name)
 
 
-def update(obj):
-    if isinstance(obj, Deployment):
-        priority = obj.build.dependencies.all().aggregate(
-            Min('alerts__category__priority'))
-        priority = priority['alerts__category__priority__min']
-    elif isinstance(obj, Package):
-        priority = obj.alerts.all().aggregate(
-            Min('category__priority'))
-        priority = priority['category__priority__min']
-    else:
-        priority = obj.dependencies.all().aggregate(
-            Min('alerts__category__priority'))
-        priority = priority['alerts__category__priority__min']
-    img = '<img src="{src}" width="20" height="20" alt="{alt}">'
-    if priority is None:
-        img = ''
-    elif priority < 1:
-        img = img.format(
-            src='/static/core/admin/img/software-update-urgent.svg',
-            alt="Urgent")
-    elif priority:
-        img = img.format(
-            src='/static/core/admin/img/software-update-available.svg',
-            alt="Available")
-    return mark_safe(img)
+def dependencies(obj):
+    return u', '.join(map(unicode, obj.dependencies.all()))
 
 
 @admin.register(Build)
-class BuildAdmin(admin.ModelAdmin):
-    list_display = ('name', 'product', 'created', update)
-    readonly_fields = ('name', 'product', 'created', 'dependencies')
+class BuildAdmin(GenericAdminModelAdmin):
+    list_display = ('name', 'product', 'created')
+    readonly_fields = ('name', 'product', 'created', dependencies)
 
 
 @admin.register(AlertType)
@@ -69,7 +44,7 @@ class AlertAdmin(admin.ModelAdmin):
 
 @admin.register(Deployment)
 class DeploymentAdmin(admin.ModelAdmin):
-    list_display = ('environment', 'product', 'created', update)
+    list_display = ('environment', 'product', 'created')
 
 
 # package version query syntax
@@ -85,7 +60,7 @@ re_query = re.compile(
 @admin.register(Package)
 class PackageAdmin(admin.ModelAdmin):
     search_fields = ['name', 'version', 'source']
-    list_display = ('name', 'version', 'source', update)
+    list_display = ('name', 'version', 'source')
     readonly_fields = ('name', 'version', 'source')
     fields = ('name', 'version', 'source')
 

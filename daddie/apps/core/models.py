@@ -1,5 +1,8 @@
 from distutils.version import StrictVersion
 
+from django.contrib.contenttypes.fields import GenericForeignKey, \
+    GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 
@@ -41,7 +44,8 @@ class VersionCreator(object):
 
         if isinstance(value, StrictVersion):
             obj.__dict__[self.field.name] = str(value)
-            for name, val in zip(['major', 'minor', 'patch'], list(value.version)):
+            pairs = zip(['major', 'minor', 'patch'], list(value.version))
+            for name, val in pairs:
                 setattr(obj, '{0}_{1}'.format(self.field.name, name), val)
 
 
@@ -94,27 +98,29 @@ class Package(models.Model):
         return unicode(self.name)
 
 
+class Dependency(models.Model):
+    package = models.ForeignKey(Package, related_name='dependants')
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    dependant = GenericForeignKey()
+
+    class Meta:
+        verbose_name_plural = 'dependencies'
+
+    def __unicode__(self):
+        return u'{0.package}-{0.package.version}'.format(self)
+
+
 class Build(models.Model):
     name = models.CharField(max_length=30, unique=True)
     product = models.ForeignKey(Product, related_name='builds')
-    dependencies = models.ManyToManyField(Package, through='Dependency')
+    dependencies = GenericRelation(Dependency)
     created = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
         return unicode(' / '.join([
             unicode(self.product),
             self.name]))
-
-
-class Dependency(models.Model):
-    package = models.ForeignKey(Package, related_name='dependants')
-    build = models.ForeignKey(Build)
-
-    class Meta:
-        verbose_name_plural = 'dependencies'
-
-    def __unicode__(self):
-        return unicode(self.package)
 
 
 class Deployment(models.Model):

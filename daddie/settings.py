@@ -40,10 +40,12 @@ INSTALLED_APPS = (
 
     # imported apps
     'django_nose',
+    'genericadmin',
     'rest_framework',
 
     # project apps
     'daddie.apps.core',
+    'daddie.apps.github',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -94,7 +96,7 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/London'
 
 USE_I18N = True
 
@@ -109,3 +111,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')

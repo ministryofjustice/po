@@ -8,6 +8,37 @@ dependencies.
 Installation
 ------------
 
+You will need:
+
+* `Python 2.7`_
+* `virtualenvwrapper`_
+
+.. _Python 2.7: https://www.python.org/downloads/release/python-2710/
+.. _virtualenvwrapper: https://pypi.python.org/pypi/virtualenvwrapper
+
+Clone the repository::
+
+    git clone git@github.com:ministryofjustice/daddie
+
+Create a virtualenv and install the dependencies::
+
+    cd daddie
+    mkvirtualenv daddie
+    pip install -r requirements.txt
+
+Run migrations and create a superuser::
+
+    ./manage.py migrate
+    ./manage.py createsuperuser
+
+Run the server::
+
+    ./manage.py runserver
+
+Access the server at http://localhost:8000/
+
+And the admin at http://localhost:8000/admin/
+
 
 Configuration
 -------------

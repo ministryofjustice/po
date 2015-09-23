@@ -114,3 +114,7 @@ STATIC_URL = '/static/'
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
+
+REST_FRAMEWORK = {
+    'PAGE_SIZE': 20,
+}

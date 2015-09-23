@@ -27,6 +27,7 @@ def repo_link(obj):
 @admin.register(Repository)
 class RepositoryAdmin(GenericAdminModelAdmin):
     list_display = ('name',)
+    search_fields = ['name', 'description']
     readonly_fields = (
         repo_link, 'private', 'description', 'created', 'updated',
         'contributors', languages, dependencies)

@@ -22,5 +22,7 @@ urlpatterns = [
     url(r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework')),
 
-
+    url(r'^', include('daddie.apps.github.urls', namespace='github')),
+    url(r'^', include('daddie.apps.core.urls', namespace='core')),
+    url(r'^reports/', include('daddie.apps.reports.urls')),
 ]

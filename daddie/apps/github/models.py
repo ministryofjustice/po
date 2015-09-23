@@ -6,7 +6,7 @@ from daddie.apps.core.models import Dependency, Product, Package
 
 
 class Repository(models.Model):
-    name = models.CharField(max_length=100, editable=False)
+    name = models.CharField(max_length=100, editable=False, unique=True)
     products = models.ManyToManyField(Product)
     dependencies = GenericRelation(Dependency)
     created = models.DateTimeField(editable=False)
@@ -24,6 +24,9 @@ class LanguageUsage(models.Model):
     repository = models.ForeignKey(Repository, related_name='languages')
     language = models.CharField(max_length=30)
     num_bytes = models.IntegerField()
+
+    class Meta:
+        unique_together = ('repository', 'language')
 
     def percentage(self):
         all_langs = LanguageUsage.objects.filter(repository=self.repository)

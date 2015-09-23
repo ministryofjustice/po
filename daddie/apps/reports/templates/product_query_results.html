@@ -1,0 +1,11 @@
+<html>
+<body>
+  <h1>Products with dependency on {{ query }}</h1>
+  {{ results.query }}
+  <ol>
+    {% for package in results %}
+    <li>{{ package.name }} {{ package.version }}</li>
+    {% endfor %}
+</ol>
+</body>
+</html>

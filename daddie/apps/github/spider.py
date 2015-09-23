@@ -1,8 +1,10 @@
+from base64 import b64decode
+
 from django.conf import settings
 from django.utils import timezone
-from github import Github
-import pytz
+from github import Github, GithubException
 
+from daddie.lib.gemfile import Gemfile
 from models import Repository, Dependency, Package, LanguageUsage
 
 
@@ -28,6 +30,25 @@ def spider_repos():
             usage = LanguageUsage()
             usage.language = language
             usage.num_bytes = num_bytes
-            print ' -', language, '({0})'.format(num_bytes)
             r.languages.add(usage)
+
+        try:
+            gemfile = repo.get_file_contents('Gemfile.lock')
+            gemfile = Gemfile(b64decode(gemfile.content))
+            for name, version in gemfile.dependencies:
+                print ' -', name, version
+                # XXX get a version object because string comparison is buggy
+                ver = Package(version=version).version
+                package, created = Package.objects.get_or_create(
+                    name=name, version=ver, source='RubyGems')
+                if created:
+                    package.save()
+                dep = Dependency()
+                dep.package = package
+                dep.dependant = r
+                dep.save()
+        except GithubException:
+            # no Gemfile.lock
+            pass
+
         r.save()

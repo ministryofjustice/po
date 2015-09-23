@@ -1,4 +1,4 @@
-from distutils.version import StrictVersion
+from distutils.version import LooseVersion, StrictVersion
 
 from django.contrib.contenttypes.fields import GenericForeignKey, \
     GenericRelation
@@ -32,19 +32,34 @@ class VersionCreator(object):
         if obj is None:
             raise AttributeError('Can only be accessed via an instance')
 
-        version = obj.__dict__[self.field.name]
+        version = obj.__dict__.get(self.field.name)
         if version is not None:
             if isinstance(version, basestring):
-                return StrictVersion(version)
+                try:
+                    return StrictVersion(version)
+                except ValueError:
+                    return LooseVersion(version)
 
     def __set__(self, obj, value):
 
         if isinstance(value, basestring) and len(value):
-            value = StrictVersion(value)
+            obj.__dict__[self.field.name] = value
+            try:
+                value = StrictVersion(value)
+            except ValueError:
+                value = LooseVersion(value)
+
+        subfields = ['major', 'minor', 'patch']
 
         if isinstance(value, StrictVersion):
             obj.__dict__[self.field.name] = str(value)
-            pairs = zip(['major', 'minor', 'patch'], list(value.version))
+            pairs = zip(subfields, list(value.version))
+            for name, val in pairs:
+                setattr(obj, '{0}_{1}'.format(self.field.name, name), val)
+
+        if isinstance(value, LooseVersion):
+            obj.__dict__[self.field.name] = str(value)
+            pairs = zip(subfields[:len(value.version)], list(value.version))
             for name, val in pairs:
                 setattr(obj, '{0}_{1}'.format(self.field.name, name), val)
 
@@ -74,7 +89,7 @@ class VersionField(models.Field):
         setattr(cls, self.name, VersionCreator(self))
 
     def get_db_prep_save(self, value, connection):
-        if isinstance(value, StrictVersion):
+        if isinstance(value, StrictVersion) or isinstance(value, LooseVersion):
             value = str(value)
         return super(VersionField, self).get_db_prep_save(value, connection)
 
@@ -90,9 +105,13 @@ class VersionField(models.Field):
 
 
 class Package(models.Model):
-    name = models.CharField(max_length=30, unique=True)
+    name = models.CharField(max_length=30)
     version = VersionField()
-    source = models.CharField(max_length=30)
+    source = models.CharField(max_length=30, null=True)
+
+    class Meta:
+        select_on_save = True
+        unique_together = ('name', 'version', 'source')
 
     def __unicode__(self):
         return unicode(self.name)
@@ -106,6 +125,7 @@ class Dependency(models.Model):
 
     class Meta:
         verbose_name_plural = 'dependencies'
+        unique_together = ('package', 'content_type', 'object_id')
 
     def __unicode__(self):
         return u'{0.package}-{0.package.version}'.format(self)
@@ -117,6 +137,9 @@ class Build(models.Model):
     dependencies = GenericRelation(Dependency)
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('product', 'created')
+
     def __unicode__(self):
         return unicode(' / '.join([
             unicode(self.product),
@@ -125,9 +148,11 @@ class Build(models.Model):
 
 class Deployment(models.Model):
     environment = models.CharField(max_length=30)
-    product = models.ForeignKey(Product, related_name='deployments')
     build = models.ForeignKey(Build, related_name='deployments')
     created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('environment', 'build', 'created')
 
 
 class AlertType(models.Model):

@@ -42,9 +42,13 @@ class AlertAdmin(admin.ModelAdmin):
     pass
 
 
+def build_product(obj):
+    return obj.build.product
+
+
 @admin.register(Deployment)
 class DeploymentAdmin(admin.ModelAdmin):
-    list_display = ('environment', 'product', 'created')
+    list_display = ('environment', build_product, 'created')
 
 
 # package version query syntax
@@ -55,6 +59,30 @@ class DeploymentAdmin(admin.ModelAdmin):
 # <version> = <text>
 re_query = re.compile(
     r'(?i)^\s*([a-z_]\w*(?:\.[a-z_]\w*)*)\s*(<=|>=|<|>|!=|==)\s*(.*)')
+
+
+def search_query(query, queryset):
+    match = re_query.match(query)
+    if match:
+        name, operator, version = match.groups()
+        operators = {
+            '<': '__lt',
+            '<=': '__lte',
+            '>': '__gt',
+            '>=': '__gte',
+            '==': ''}
+        if operator in operators:
+            kwargs = {'name': name}
+            key = 'version{op}'.format(op=operators[operator])
+            kwargs.update({key: version})
+
+            queryset |= Package.objects.filter(**kwargs)
+        elif operator == '!=':
+            queryset |= Package.objects.exclude(version=version)
+        else:
+            queryset |= Package.objects.filter(name=name)
+
+    return queryset
 
 
 @admin.register(Package)
@@ -72,25 +100,5 @@ class PackageAdmin(admin.ModelAdmin):
         if not query:
             return queryset, use_distinct
 
-        match = re_query.match(query)
-        if not match:
-            return queryset, use_distinct
-
-        name, operator, version = match.groups()
-        operators = {
-            '<': '__lt',
-            '<=': '__lte',
-            '>': '__gt',
-            '>=': '__gte',
-            '==': ''}
-        if operator in operators:
-            kwargs = {'name': name}
-            key = 'version{op}'.format(op=operators[operator])
-            kwargs.update({key: version})
-            queryset |= Package.objects.filter(**kwargs)
-        elif operator == '!=':
-            queryset |= Package.objects.exclude(version=version)
-        else:
-            queryset |= Package.objects.filter(name=name)
-
+        queryset = search_query(query, queryset)
         return queryset, use_distinct

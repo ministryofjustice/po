@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     # project apps
     'daddie.apps.core',
     'daddie.apps.github',
+    'daddie.apps.reports',
 )
 
 MIDDLEWARE_CLASSES = (

@@ -4,5 +4,5 @@ from . import views
 
 
 urlpatterns = [
-    url(r'^$', views.product_query_form, name='index'),
+    url(r'^admin/product-dependency/$', views.product_query_form, name='index'),
 ]

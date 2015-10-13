@@ -116,8 +116,43 @@ STATIC_URL = '/static/'
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
-GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
+GITHUB_TOKEN = '3efda15f265d0c64aab23267fa73027d4b2cf78e'
 
 REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
+
+GRAPPELLI_ADMIN_TITLE = 'DADDIE'
+
+LOGGING_CONFIG = None
+
+import logging.config
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '%(name)s: [%(levelname)s] %(message)s'
+        },
+    },
+    'handlers': {
+        'null': {
+            'class': 'logging.NullHandler',
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+            'level': 'DEBUG',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+        'django': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
+    },
+})

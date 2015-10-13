@@ -9,4 +9,7 @@ router.register(r'repositories', views.RepositoryViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
+    url(r'^admin/add-repo-to-product/$',
+        views.AddRepoToProductFormView.as_view(),
+        name='add_repo_to_product'),
 ]

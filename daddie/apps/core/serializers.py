@@ -1,4 +1,5 @@
 import importlib
+import logging
 import re
 
 from rest_framework import serializers
@@ -6,12 +7,15 @@ from rest_framework import serializers
 import models
 
 
+log = logging.getLogger(__name__)
+
+
 class ServiceSerializer(serializers.ModelSerializer):
-    # products = serializers.HyperlinkedRelatedField(
-        # many=True,
-        # read_only=True,
-        # view_name='product-detail',
-        # lookup_field='pk')
+    products = serializers.HyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='product-detail',
+        lookup_field='pk')
 
     class Meta:
         model = models.Service
@@ -19,9 +23,18 @@ class ServiceSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    service = ServiceSerializer()
 
     class Meta:
         model = models.Product
+
+    def create(self, validated_data):
+        service_data = validated_data.pop('service')
+        log.debug(service_data)
+        service, _ = models.Service.objects.get_or_create(**service_data)
+        validated_data['service'] = service
+        product, _ = models.Product.objects.get_or_create(**validated_data)
+        return product
 
 
 class PackageSerializer(serializers.ModelSerializer):
@@ -80,11 +93,33 @@ class DependencySerializer(serializers.ModelSerializer):
 
 
 class BuildSerializer(serializers.ModelSerializer):
+    product = ProductSerializer()
+    dependencies = DependencySerializer(many=True)
+
     class Meta:
         model = models.Build
+        fields = ('name', 'product', 'dependencies')
+
+    def create(self, validated_data):
+        product_data = validated_data.pop('product')
+        product = ProductSerializer().create(product_data)
+        validated_data['product'] = product
+        dependency_data = validated_data.pop('dependencies')
+        build = models.Build.objects.create(**validated_data)
+        return build
 
 
 class DeploymentSerializer(serializers.ModelSerializer):
+    build = BuildSerializer()
+
     class Meta:
         model = models.Deployment
-        fields = ('name', 'service')
+        fields = ('environment', 'build')
+
+    def create(self, validated_data):
+        build_data = validated_data.pop('build')
+        build = BuildSerializer().create(build_data)
+        validated_data['build'] = build
+        log.debug('deployment', validated_data)
+        deployment = models.Deployment.objects.create(**validated_data)
+        return deployment

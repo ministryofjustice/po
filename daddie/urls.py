@@ -18,11 +18,12 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^grappelli/', include('grappelli.urls')),
 
     url(r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework')),
 
     url(r'^', include('daddie.apps.github.urls', namespace='github')),
     url(r'^', include('daddie.apps.core.urls', namespace='core')),
-    url(r'^reports/', include('daddie.apps.reports.urls')),
+    url(r'^', include('daddie.apps.reports.urls')),
 ]

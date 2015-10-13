@@ -1,19 +1,32 @@
 from django.shortcuts import render
 
 from daddie.apps.core.admin import search_query
-from daddie.apps.core.models import Package, Product
+from daddie.apps.core.models import Build, Package, Product, Dependency
 from daddie.apps.github.models import Repository
 
 
 def product_query_form(request):
     if 'q' in request.GET:
         packages = Package.objects.filter(name='')
-        packages = search_query(request.GET['q'].strip(), packages)
+        packages = list(search_query(request.GET['q'].strip(), packages))
+        pkg_ids = [pkg.id for pkg in packages]
+        dependencies = Dependency.objects.filter(
+            package__in=pkg_ids)
         products = Product.objects.filter(
-            builds__dependencies__package__in=packages.values('pk'))
-        products |= Product.objects.filter(
-            repository__dependencies__package__in=packages.values('pk'))
+            )
 
-        return render(request, 'product_query_results.html', {
-            'results': products, 'query': request.GET['q'].strip()})
-    return render(request, 'product_query_form.html')
+        results = list(products)
+
+        # def dependencies(product):
+            # deps = []
+
+                # pk__in=product.builds.filter(dependencies__package.values('pk'))
+            # deps |= packages.filter(
+                # pk__in=product.repositories.all().dependencies.all().values('pk'))
+            # return deps
+
+        # results = zip(products, map(dependencies, products))
+
+        return render(request, 'admin/product_query_results.html', {
+            'results': results, 'query': request.GET['q'].strip()})
+    return render(request, 'admin/product_query_form.html')

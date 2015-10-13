@@ -4,7 +4,7 @@ from django.conf import settings
 from django.utils import timezone
 from github import Github, GithubException
 
-from daddie.lib.gemfile import Gemfile
+from po.lib.gemfile import Gemfile
 from models import Repository, Dependency, Package, LanguageUsage
 
 

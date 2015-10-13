@@ -1,4 +1,4 @@
-"""daddie URL Configuration
+"""po URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.8/topics/http/urls/
@@ -23,7 +23,7 @@ urlpatterns = [
     url(r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework')),
 
-    url(r'^', include('daddie.apps.github.urls', namespace='github')),
-    url(r'^', include('daddie.apps.core.urls', namespace='core')),
-    url(r'^', include('daddie.apps.reports.urls')),
+    url(r'^', include('po.apps.github.urls', namespace='github')),
+    url(r'^', include('po.apps.core.urls', namespace='core')),
+    url(r'^', include('po.apps.reports.urls')),
 ]

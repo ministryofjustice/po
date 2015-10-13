@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import daddie.apps.core.models
+import po.apps.core.models
 
 
 class Migration(migrations.Migration):

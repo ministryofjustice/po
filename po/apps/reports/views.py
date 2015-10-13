@@ -1,8 +1,8 @@
 from django.shortcuts import render
 
-from daddie.apps.core.admin import search_query
-from daddie.apps.core.models import Build, Package, Product, Dependency
-from daddie.apps.github.models import Repository
+from po.apps.core.admin import search_query
+from po.apps.core.models import Build, Package, Product, Dependency
+from po.apps.github.models import Repository
 
 
 def product_query_form(request):

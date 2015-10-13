@@ -2,7 +2,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Sum
 
-from daddie.apps.core.models import Dependency, Product, Package
+from po.apps.core.models import Dependency, Product, Package
 
 
 class Repository(models.Model):

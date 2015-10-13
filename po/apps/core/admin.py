@@ -1,7 +1,6 @@
 import re
 
 from django.contrib import admin
-from genericadmin.admin import GenericAdminModelAdmin
 
 from models import Service, Product, Build, AlertType, Deployment, Package,\
     Alert
@@ -27,7 +26,7 @@ def dependencies(obj):
 
 
 @admin.register(Build)
-class BuildAdmin(GenericAdminModelAdmin):
+class BuildAdmin(admin.ModelAdmin):
     list_display = ('name', 'product', 'created')
     readonly_fields = ('name', 'product', 'created', dependencies)
 

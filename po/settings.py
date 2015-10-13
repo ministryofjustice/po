@@ -43,7 +43,6 @@ INSTALLED_APPS = (
 
     # imported apps
     'django_nose',
-    'genericadmin',
     'rest_framework',
 
     # project apps

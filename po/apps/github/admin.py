@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.http.response import HttpResponseRedirect
 from django.utils.safestring import mark_safe
-from genericadmin.admin import GenericAdminModelAdmin
 
 from models import Repository
 
@@ -32,7 +31,7 @@ def add_to_product(modeladmin, request, queryset):
 
 
 @admin.register(Repository)
-class RepositoryAdmin(GenericAdminModelAdmin):
+class RepositoryAdmin(admin.ModelAdmin):
     actions = [add_to_product]
     list_display = ('name',)
     search_fields = ['name', 'description']

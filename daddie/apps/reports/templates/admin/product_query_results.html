@@ -1,0 +1,33 @@
+{% extends "admin/base_site.html" %}
+{% load admin_static i18n l10n admin_modify admin_urls grp_tags %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} {% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; {% trans 'Product dependencies' %}
+</div>
+{% endblock %}
+
+{% block content %}
+  <h2>Products with dependency on {{ query }}</h2>
+  {% block result_list %}
+    <table>
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Dependency</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for result in results %}
+    <tr>
+      <td><a href="/admin/core/product/{{ result.id }}">{{ result }}</a></td>
+      <td>{{ result.dependency }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+  {% endblock %}
+{% endblock %}

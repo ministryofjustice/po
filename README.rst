@@ -1,5 +1,5 @@
-Digital All-product Dependency Dashboard Information Engine
-===========================================================
+Platforms Overseer
+==================
 
 An app which spiders all our Github repos, collects data on software library and
 application dependencies and can report on which products have specified
@@ -18,12 +18,12 @@ You will need:
 
 Clone the repository::
 
-    git clone git@github.com:ministryofjustice/daddie
+    git clone git@github.com:ministryofjustice/po
 
 Create a virtualenv and install the dependencies::
 
-    cd daddie
-    mkvirtualenv daddie
+    cd po
+    mkvirtualenv po
     pip install -r requirements.txt
 
 Run migrations and create a superuser::

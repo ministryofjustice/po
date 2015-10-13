@@ -9,3 +9,4 @@ venv
 htmlcov
 postcodeinfo/static
 
+db.sqlite3

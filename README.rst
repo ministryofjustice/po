@@ -47,6 +47,22 @@ Configuration
 Usage
 -----
 
+Submitting APT dependency information for a deployment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To automatically submit APT package dependencies for an app on deployment by
+Jenkins (or other CI system), a build step needs to call the
+`scripts/post-dependencies.sh` script.
+
+This script will query `dpkg` for a list of installed packages, generate a JSON
+payload and POST it to the Platform Overseer API.
+
+The following environment variables need to be set:
+
+  * **PROJECT** - the name of the project/app
+  * **APP_BUILD_TAG** - the name of the build (tries BUILD_TAG if not set)
+  * **ENV** - the name of the deployment environment, eg: staging
+
 
 Support
 -------

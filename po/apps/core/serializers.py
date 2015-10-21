@@ -89,36 +89,15 @@ def module_path(obj):
     return None, None
 
 
-def parent_module(path):
-    return path.rpartition('.')[0]
-
-
-def serializer_for(obj):
-    module, model = module_path(obj)
-    if module and model:
-        module = '{module}.serializers'.format(module=parent_module(module))
-        serializer = '{model}Serializer'.format(model=model)
-        try:
-            module = importlib.import_module(module)
-            serializer_class = getattr(module, serializer)
-            return serializer_class(obj)
-        except ImportError:
-            pass
-    raise ValueError('Could not find serializer for {0}'.format(model))
-
-
 class DependantObjectRelatedField(serializers.RelatedField):
 
     def to_representation(self, value):
         module, model = module_path(value)
         log.debug('dependant object: %s' % value)
-        # data = serializer_for(value).data
         return {
             'type': model,
             'pk': value.pk,
             'value': str(value)}
-        # data.update({'type': model})
-        # return data
 
 
 class DependencySerializer(serializers.ModelSerializer):

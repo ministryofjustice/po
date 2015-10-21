@@ -16,6 +16,10 @@ deployment() {
     # PROJECT
     #  - the name of the project, eg: "CLA Public"
     #  - this is usually set in template deploy
+    build_tag="$APP_BUILD_TAG"
+    if [ -z "$build_tag" ]; then
+        build_tag="$BUILD_TAG"
+    fi
     printf '{"environment": "%s", "build": {"name": "%s", "product": {"name": "%s"}, "dependencies": [%s]}}' "$ENV" "$APP_BUILD_TAG" "$PROJECT" "$1"
 }
 

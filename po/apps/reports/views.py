@@ -5,17 +5,34 @@ from po.apps.core.models import Build, Package, Product, Dependency
 from po.apps.github.models import Repository
 
 
+# def product_query_form(request):
+    # if 'q' in request.GET:
+        # packages = Package.objects.filter(name='')
+        # packages = search_query(request.GET['q'].strip(), packages)
+        # products = Product.objects.filter(
+            # builds__dependencies__package__in=packages.values('pk'))
+        # products |= Product.objects.filter(
+            # repository__dependencies__package__in=packages.values('pk'))
+
+        # return render(request, 'product_query_results.html', {
+            # 'results': products, 'query': request.GET['q'].strip()})
+    # return render(request, 'product_query_form.html')
+
+
 def product_query_form(request):
     if 'q' in request.GET:
         packages = Package.objects.filter(name='')
-        packages = list(search_query(request.GET['q'].strip(), packages))
-        pkg_ids = [pkg.id for pkg in packages]
-        dependencies = Dependency.objects.filter(
-            package__in=pkg_ids)
-        products = Product.objects.filter(
-            )
+        packages = search_query(request.GET['q'].strip(), packages)
+        pkg_ids = packages.values('pk')
 
-        results = list(products)
+        products = Product.objects.filter(
+            builds__dependencies__package__in=pkg_ids)
+        products |= Product.objects.filter(
+            repository__dependencies__package__in=pkg_ids)
+
+        # dependencies = Dependency.objects.filter(
+            # package__in=pkg_ids)
+        # products = Product.objects.all()
 
         # def dependencies(product):
             # deps = []
@@ -28,5 +45,5 @@ def product_query_form(request):
         # results = zip(products, map(dependencies, products))
 
         return render(request, 'admin/product_query_results.html', {
-            'results': results, 'query': request.GET['q'].strip()})
+            'results': products, 'query': request.GET['q'].strip()})
     return render(request, 'admin/product_query_form.html')

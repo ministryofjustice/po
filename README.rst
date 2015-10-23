@@ -67,9 +67,26 @@ The following environment variables need to be set:
 Support
 -------
 
+This source code is provided as-is, with no incident response or support levels.
+Please log all questions, issues, and feature requests in the Github issue
+tracker for this repo, and we'll take a look as soon as we can. If you're
+reporting a bug, then it really helps if you can provide the smallest possible
+bit of code that reproduces the issue. A failing test is even better!
+
 
 Contributing
 ------------
+
+* Check out the latest master to make sure the feature hasn't been implemented
+  or the bug fixed
+* Check the issue tracker to make sure someone hasn't already requested and/or
+  contributed the feature
+* Fork the project
+* Start a feature/bugfix branch
+* Commit and push until you are happy with your contribution
+* Make sure your changes are covered by unit tests, so that we don't break it
+  unintentionally in the future.
+* Please don't mess with version or history.
 
 
 Copyright

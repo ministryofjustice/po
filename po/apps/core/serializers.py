@@ -1,3 +1,4 @@
+from distutils.version import LooseVersion, StrictVersion, Version
 import importlib
 import logging
 import re
@@ -8,6 +9,19 @@ import models
 
 
 log = logging.getLogger(__name__)
+
+
+# XXX - monkeypatch __cmp__ in *Version classes because they assume that the
+# other value is not None
+def fix_cmp(fn):
+    def cmp_fixed(self, other):
+        if other is None:
+            # hopefully, nothing is ever version 0.0.0
+            other = '0.0.0'
+        return fn(self, other)
+    return cmp_fixed
+LooseVersion.__cmp__ = fix_cmp(LooseVersion.__cmp__)
+StrictVersion.__cmp__ = fix_cmp(StrictVersion.__cmp__)
 
 
 class ServiceSerializer(serializers.ModelSerializer):
@@ -23,21 +37,45 @@ class ServiceSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    service = ServiceSerializer()
+    service = ServiceSerializer(required=False)
 
     class Meta:
         model = models.Product
 
     def create(self, validated_data):
-        service_data = validated_data.pop('service')
-        log.debug(service_data)
-        service, _ = models.Service.objects.get_or_create(**service_data)
-        validated_data['service'] = service
+        service_data = validated_data.pop('service', None)
+        if service_data:
+            service, _ = models.Service.objects.get_or_create(**service_data)
+            validated_data['service'] = service
+        log.debug('product create data: %s' % str(validated_data))
         product, _ = models.Product.objects.get_or_create(**validated_data)
         return product
 
 
+class VersionField(serializers.Field):
+
+    def to_representation(self, obj):
+        return str(obj)
+
+    def to_internal_value(self, data):
+        if data is None:
+            return data
+        if isinstance(data, Version):
+            return data
+        if isinstance(data, basestring):
+            try:
+                return StrictVersion(data)
+            except ValueError:
+                return LooseVersion(data)
+            except TypeError:
+                raise Exception(data.__class__.__name__)
+        raise serializers.ValidationError(
+            '%s not recognised as a version string' % data)
+
+
 class PackageSerializer(serializers.ModelSerializer):
+    version = VersionField()
+
     class Meta:
         model = models.Package
         fields = ('name', 'version', 'source')
@@ -51,36 +89,15 @@ def module_path(obj):
     return None, None
 
 
-def parent_module(path):
-    return path.rpartition('.')[0]
-
-
-def serializer_for(obj):
-    module, model = module_path(obj)
-    if module and model:
-        module = '{module}.serializers'.format(module=parent_module(module))
-        serializer = '{model}Serializer'.format(model=model)
-        try:
-            module = importlib.import_module(module)
-            serializer_class = getattr(module, serializer)
-            return serializer_class(obj)
-        except ImportError:
-            pass
-    raise ValueError('Could not find serializer for {0}'.format(model))
-
-
 class DependantObjectRelatedField(serializers.RelatedField):
 
     def to_representation(self, value):
-        if isinstance(value, models.Build):
-            data = BuildSerializer(value).data
-            data.update({'type': 'Build'})
-        else:
-            module, model = module_path(value)
-            data = serializer_for(value).data
-            data.update({'type': model})
-
-        return data
+        module, model = module_path(value)
+        log.debug('dependant object: %s' % value)
+        return {
+            'type': model,
+            'pk': value.pk,
+            'value': str(value)}
 
 
 class DependencySerializer(serializers.ModelSerializer):
@@ -89,6 +106,7 @@ class DependencySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Dependency
+        depth = 0
         fields = ('package', 'dependant',)
 
 
@@ -98,6 +116,7 @@ class BuildSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Build
+        depth = 0
         fields = ('name', 'product', 'dependencies')
 
     def create(self, validated_data):
@@ -105,7 +124,19 @@ class BuildSerializer(serializers.ModelSerializer):
         product = ProductSerializer().create(product_data)
         validated_data['product'] = product
         dependency_data = validated_data.pop('dependencies')
+        log.debug('build data: %s' % str(validated_data))
         build = models.Build.objects.create(**validated_data)
+        for data in dependency_data:
+            pkg_data = data['package']
+            package = PackageSerializer(data=pkg_data)
+            log.debug('package: %s' % str(pkg_data))
+            log.debug('is valid? %s' % package.is_valid())
+            if package.is_valid():
+                package = package.create(pkg_data)
+                models.Dependency.objects.create(
+                    package=package,
+                    dependant=build)
+        log.debug('build dependencies: %s' % str(build.dependencies.all()))
         return build
 
 
@@ -120,6 +151,6 @@ class DeploymentSerializer(serializers.ModelSerializer):
         build_data = validated_data.pop('build')
         build = BuildSerializer().create(build_data)
         validated_data['build'] = build
-        log.debug('deployment', validated_data)
+        log.debug('deployment data: %s' % str(validated_data))
         deployment = models.Deployment.objects.create(**validated_data)
         return deployment

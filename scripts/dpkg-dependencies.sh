@@ -27,16 +27,14 @@ filter_name_and_version() {
 json_pkg() {
     local name="${1%|*}"
     local ver="${1#*|}"
-    printf '{"name": "%s", "version": "%s", "source": "apt"}' "$name" "$ver"
+    printf '{"package": {"name": "%s", "version": "%s", "source": "apt"}}' "$name" "$ver"
 }
 
 json_format() {
-    printf "{\"packages\": ["
     for pkg in "$@"; do
         if [ "$pkg" != "$1" ]; then printf ", "; fi
         json_pkg "$pkg"
     done
-    printf "]}\n"
 }
 
 installed_packages_metadata() {

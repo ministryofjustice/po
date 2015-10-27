@@ -1,9 +1,11 @@
-from distutils.version import LooseVersion, StrictVersion
+from distutils.version import LooseVersion, StrictVersion, Version
 
 from django.contrib.contenttypes.fields import GenericForeignKey, \
     GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.core import exceptions
 from django.db import models
+from django.utils.functional import Promise
 
 
 class Service(models.Model):
@@ -17,7 +19,7 @@ class Service(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=30, unique=True)
-    service = models.ForeignKey(Service, related_name='products')
+    service = models.ForeignKey(Service, related_name='products', null=True)
 
     def __unicode__(self):
         return unicode(' / '.join([unicode(self.service), self.name]))
@@ -64,7 +66,16 @@ class VersionCreator(object):
                 setattr(obj, '{0}_{1}'.format(self.field.name, name), val)
 
 
-class VersionField(models.Field):
+def parse_version(value):
+    try:
+        return StrictVersion(value)
+    except ValueError:
+        return LooseVersion(value)
+    raise exceptions.ValidationError(
+        'Invalid input for a Version: %s' % value)
+
+
+class VersionField(models.CharField):
     description = "A version number/string"
 
     def __init__(self, *args, **kwargs):
@@ -76,32 +87,21 @@ class VersionField(models.Field):
         del kwargs['max_length']
         return name, path, args, kwargs
 
-    def db_type(self, connection):
-        return 'varchar(20)'
+    def from_db_value(self, value, expression, connection, context):
+        if value is None:
+            return value
+        return parse_version(value)
 
-    def contribute_to_class(self, cls, name):
-        for field_name in ['{0}_major', '{0}_minor', '{0}_patch']:
-            field = models.IntegerField(editable=False, null=True, blank=True)
-            field.creation_counter = self.creation_counter
-            cls.add_to_class(field_name.format(name), field)
+    def to_python(self, value):
+        if isinstance(value, None):
+            return value
+        if isinstance(value, Version):
+            return value
+        if isinstance(value, basestring):
+            return parse_version(value)
 
-        super(VersionField, self).contribute_to_class(cls, name)
-        setattr(cls, self.name, VersionCreator(self))
-
-    def get_db_prep_save(self, value, connection):
-        if isinstance(value, StrictVersion) or isinstance(value, LooseVersion):
-            value = str(value)
-        return super(VersionField, self).get_db_prep_save(value, connection)
-
-    def get_db_prep_lookup(self, lookup_type, value, connection, **kwargs):
-        if lookup_type == 'exact':
-            return [self.get_db_prep_save(value, connection)]
-
-        if lookup_type == 'in':
-            return [self.get_db_prep_save(v) for v in value]
-
-        return super(VersionField, self).get_db_prep_lookup(
-            lookup_type, value, connection, **kwargs)
+    def get_prep_value(self, value):
+        return str(value)
 
 
 class Package(models.Model):

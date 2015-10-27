@@ -1,0 +1,20 @@
+#!/bin/bash
+cd /srv/po
+
+LOGS=/var/log/gunicorn
+
+manage_py() {
+  chpst -uwww-data python manage.py $1 --noinput >> $LOGS/$1.log 2>&1
+}
+
+manage_py migrate
+manage_py collectstatic
+
+exec chpst -uwww-data \
+    /usr/local/bin/gunicorn \
+    -b unix:/tmp/gunicorn.sock \
+    -w4 \
+    po.wsgi:application \
+    --access-logfile $LOGS/access.log \
+    --error-logfile $LOGS/error.log \
+    --reload

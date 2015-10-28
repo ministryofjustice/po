@@ -145,7 +145,11 @@ class DeploymentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Deployment
-        fields = ('environment', 'build')
+        fields = (
+            'environment',
+            'build',
+            'has_ping_json',
+            'has_healthcheck_json')
 
     def create(self, validated_data):
         build_data = validated_data.pop('build')

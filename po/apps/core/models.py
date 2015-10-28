@@ -150,6 +150,8 @@ class Deployment(models.Model):
     environment = models.CharField(max_length=30)
     build = models.ForeignKey(Build, related_name='deployments')
     created = models.DateTimeField(auto_now_add=True)
+    has_healthcheck_json = models.BooleanField(default=False)
+    has_ping_json = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('environment', 'build', 'created')

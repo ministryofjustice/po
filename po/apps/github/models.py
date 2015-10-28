@@ -15,9 +15,32 @@ class Repository(models.Model):
     private = models.BooleanField(default=False)
     url = models.CharField(max_length=255, editable=False)
     contributors = models.IntegerField(editable=False, default=1)
+    has_tests = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = 'repositories'
+
+    def add_language_usages(self, usages):
+        for language, num_bytes in usages:
+            self.add_language_usage(language, num_bytes)
+
+    def add_language_usage(self, language, num_bytes):
+        usage = LanguageUsage()
+        usage.language = language
+        usage.num_bytes = num_bytes
+        self.languages.add(usage)
+
+    def add_dependency(self, pkg_name, version, source):
+        # XXX get a version object because string comparison is buggy
+        ver = Package(version=version).version
+        package, created = Package.objects.get_or_create(
+            name=pkg_name, version=ver, source=source)
+        if created:
+            package.save()
+        dep = Dependency()
+        dep.package = package
+        dep.dependant = self
+        dep.save()
 
 
 class LanguageUsage(models.Model):

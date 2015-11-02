@@ -109,6 +109,9 @@ class DependencySerializer(serializers.ModelSerializer):
         depth = 0
         fields = ('package', 'dependant',)
 
+    def to_representation(self, obj):
+        return unicode(obj)
+
 
 class BuildSerializer(serializers.ModelSerializer):
     product = ProductSerializer()

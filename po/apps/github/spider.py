@@ -2,10 +2,10 @@ from base64 import b64decode
 
 from django.conf import settings
 from django.utils import timezone
-from github import Github, GithubException
 
 from po.lib.gemfile import Gemfile
 from models import Repository
+from pygithub import Github, GithubException
 
 
 def set_timezone(dt):

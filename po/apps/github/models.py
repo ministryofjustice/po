@@ -2,7 +2,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Sum
 
-from po.apps.core.models import Dependency, Product, Package
+from core.models import Dependency, Product, Package
 
 
 class Repository(models.Model):
@@ -29,6 +29,10 @@ class Repository(models.Model):
         usage.language = language
         usage.num_bytes = num_bytes
         self.languages.add(usage)
+
+    def languages_by_usage(self):
+        return self.languages.all().values('name', flat=True).order_by(
+            '-num_bytes')
 
     def add_dependency(self, pkg_name, version, source):
         # XXX get a version object because string comparison is buggy

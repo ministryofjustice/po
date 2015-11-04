@@ -82,6 +82,9 @@ class VersionField(models.CharField):
         kwargs['max_length'] = 20
         super(VersionField, self).__init__(*args, **kwargs)
 
+    def get_internal_type(self):
+        return "CharField"
+
     def deconstruct(self):
         name, path, args, kwargs = super(VersionField, self).deconstruct()
         del kwargs['max_length']
@@ -107,6 +110,9 @@ class VersionField(models.CharField):
 class Package(models.Model):
     name = models.CharField(max_length=30)
     version = VersionField()
+    version_major = models.IntegerField(null=True)
+    version_minor = models.IntegerField(null=True)
+    version_patch = models.IntegerField(null=True)
     source = models.CharField(max_length=30, null=True)
 
     class Meta:

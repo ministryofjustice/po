@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Sum
 
@@ -21,18 +22,27 @@ class Repository(models.Model):
         verbose_name_plural = 'repositories'
 
     def add_language_usages(self, usages):
-        for language, num_bytes in usages:
+        for language, num_bytes in usages.iteritems():
             self.add_language_usage(language, num_bytes)
 
     def add_language_usage(self, language, num_bytes):
-        usage = LanguageUsage()
-        usage.language = language
-        usage.num_bytes = num_bytes
-        self.languages.add(usage)
+        if language is None or num_bytes is None:
+            return
+
+        try:
+            usage = self.languages.get(language=language)
+            usage.num_bytes = num_bytes
+            usage.save()
+
+        except LanguageUsage.DoesNotExist:
+            usage = LanguageUsage(
+                language=language,
+                num_bytes=num_bytes)
+            self.languages.add(usage)
 
     def languages_by_usage(self):
-        return self.languages.all().values('name', flat=True).order_by(
-            '-num_bytes')
+        return self.languages.all().values_list(
+            'language', flat=True).order_by('-num_bytes')
 
     def add_dependency(self, pkg_name, version, source):
         # XXX get a version object because string comparison is buggy
@@ -41,10 +51,15 @@ class Repository(models.Model):
             name=pkg_name, version=ver, source=source)
         if created:
             package.save()
-        dep = Dependency()
-        dep.package = package
-        dep.dependant = self
-        dep.save()
+        try:
+            dep = Dependency.objects.get(
+                package=package,
+                content_type__pk=ContentType.objects.get_for_model(self).id,
+                object_id=self.pk)
+
+        except Dependency.DoesNotExist:
+            dep = Dependency(package=package, dependant=self)
+            dep.save()
 
 
 class LanguageUsage(models.Model):

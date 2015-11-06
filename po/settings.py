@@ -164,5 +164,9 @@ logging.config.dictConfig({
             'handlers': ['console'],
             'level': 'WARNING',
         },
+        'github': {
+            'handlers': ['console'],
+            'level': 'ERROR'
+        },
     },
 })

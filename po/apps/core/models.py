@@ -5,7 +5,6 @@ from django.contrib.contenttypes.fields import GenericForeignKey, \
 from django.contrib.contenttypes.models import ContentType
 from django.core import exceptions
 from django.db import models
-from django.utils.functional import Promise
 
 
 class Service(models.Model):

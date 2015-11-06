@@ -83,13 +83,19 @@ def check_for_tests(gh_repo, repo_model):
 def spider_repos():
     gh = Github(settings.GITHUB_TOKEN)
     for repo in gh.get_organization('ministryofjustice').get_repos():
-        r = Repository()
-        r.name = repo.name
-        r.created = set_timezone(repo.created_at)
+
+        try:
+            r = Repository.objects.get(name=repo.name)
+
+        except Repository.DoesNotExist:
+            r = Repository()
+            r.name = repo.name
+            r.created = set_timezone(repo.created_at)
+            r.description = repo.description
+            r.url = repo.html_url
+
         r.updated = set_timezone(repo.updated_at)
-        r.description = repo.description
         r.private = repo.private
-        r.url = repo.html_url
         r.contributors = repo.get_contributors().totalCount or 0
         r.save()
         print '\nSaving', r.name

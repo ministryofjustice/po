@@ -104,6 +104,6 @@ def spider_repos():
 
         record_gem_dependencies(repo, r)
 
-        check_for_tests(repo, r)
+        r.has_tests = check_for_tests(repo, r)
 
         r.save()

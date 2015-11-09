@@ -23,7 +23,7 @@ urlpatterns = [
     url(r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework')),
 
-    url(r'^', include('po.apps.github.urls', namespace='github')),
-    url(r'^', include('po.apps.core.urls', namespace='core')),
-    url(r'^', include('po.apps.reports.urls')),
+    url(r'^', include('github.urls', namespace='github')),
+    url(r'^', include('core.urls', namespace='core')),
+    url(r'^', include('reports.urls')),
 ]

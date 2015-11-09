@@ -12,7 +12,8 @@ class ServiceAdmin(admin.ModelAdmin):
 
 
 def service_name(obj):
-    return obj.service.name
+    if obj and obj.service:
+        return obj.service.name
 
 
 @admin.register(Product)

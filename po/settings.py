@@ -52,9 +52,9 @@ INSTALLED_APPS = (
     'rest_framework',
 
     # project apps
-    'po.apps.core',
-    'po.apps.github',
-    'po.apps.reports',
+    'core',
+    'github',
+    'reports',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -163,6 +163,10 @@ logging.config.dictConfig({
         'django': {
             'handlers': ['console'],
             'level': 'WARNING',
+        },
+        'github': {
+            'handlers': ['console'],
+            'level': 'ERROR'
         },
     },
 })

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
-from po.apps.core.admin import search_query
-from po.apps.core.models import Package, Product
+from core.admin import search_query
+from core.models import Package, Product
 
 
 def product_query_form(request):

@@ -126,7 +126,7 @@ STATICFILES_FINDERS = (
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
-GITHUB_TOKEN = '3efda15f265d0c64aab23267fa73027d4b2cf78e'
+GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
 
 REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
@@ -170,3 +170,16 @@ logging.config.dictConfig({
         },
     },
 })
+
+ZENDESK_API = {
+    'url': '',
+    'username': '',
+    'password': ''
+}
+
+# local.py overrides all the common settings.
+# XXX any settings appearing after this cannot be overridden in local.py
+try:
+    from .local import *
+except ImportError:
+    pass

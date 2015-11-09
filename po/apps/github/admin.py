@@ -36,5 +36,5 @@ class RepositoryAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ['name', 'description']
     readonly_fields = (
-        repo_link, 'private', 'description', 'created', 'updated',
+        repo_link, 'private', 'description', 'created', 'updated', 'has_tests',
         'contributors', languages, dependencies)

@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import sys
 
-PROJECT_ROOT = os.path.dirname(__file__)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 BASE_DIR = os.path.dirname(PROJECT_ROOT)
 
 

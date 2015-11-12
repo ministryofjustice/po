@@ -54,6 +54,7 @@ INSTALLED_APPS = (
     # project apps
     'core',
     'github',
+    'incident_response',
     'reports',
 )
 
@@ -172,9 +173,9 @@ logging.config.dictConfig({
 })
 
 ZENDESK_API = {
-    'url': '',
-    'username': '',
-    'password': ''
+    'url': os.environ.get('ZENDESK_URL'),
+    'username': os.environ.get('ZENDESK_USERNAME'),
+    'password': os.environ.get('ZENDESK_PASSWORD')
 }
 
 # local.py overrides all the common settings.

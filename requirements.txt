@@ -8,3 +8,5 @@ pytz
 git+git://github.com/andyhd/PyGithub.git@e73ee4e5480b26ac056558cb0f77b230f1278737
 django-grappelli==2.7.1
 gunicorn
+zendesk==1.1.1
+requests

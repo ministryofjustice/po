@@ -78,7 +78,7 @@ Pulling Ruby dependency information for all repositories
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To scan all ministryofjustice organisation repositories (public and private) for
-Ruby dependency information, run the following command on the PO server:..
+Ruby dependency information, run the following command on the PO server::
 
     python manage.py spider_github
 
@@ -90,7 +90,7 @@ Pulling recent incident count from Zendesk
 
 To get the number of incidents reported on products in the last two weeks (one
 of the IRAT checklist requirements is that there were less than two incidents in
-the last two weeks), run the following command:..
+the last two weeks), run the following command::
 
     python manage.py check_incidents
 

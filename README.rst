@@ -33,7 +33,7 @@ Run migrations and create a superuser::
 
 Run the server::
 
-    ./manage.py runserver
+    ./manage.py runserver 0.0.0.0:8000
 
 Access the server at http://localhost:8000/
 
@@ -43,6 +43,19 @@ And the admin at http://localhost:8000/admin/
 Configuration
 -------------
 
+The Django settings file is located in `po/settings/base.py`. To avoid committing
+sensitive data such as passwords and auth tokens to Github, you can put your
+development settings in `po/settings/local.py`, which is ignored by Git.
+
+The main settings you might want to change are taken from the following
+environment variables:
+
+* **GITHUB_TOKEN** - a Github OAuth token allowing read access to repositories
+* **ZENDESK_URL** - the URL of a Zendesk subdomain (eg:
+  https://ministryofjustice.zendesk.com/)
+* **ZENDESK_USERNAME** - the username of the Zendesk API user (usually an email
+  address)
+* **ZENDESK_TOKEN** - a Zendesk API OAuth token
 
 Usage
 -----
@@ -59,9 +72,9 @@ payload and POST it to the Platform Overseer API.
 
 The following environment variables need to be set:
 
-  * **PROJECT** - the name of the project/app
-  * **APP_BUILD_TAG** - the name of the build (tries BUILD_TAG if not set)
-  * **ENV** - the name of the deployment environment, eg: staging
+* **PROJECT** - the name of the project/app
+* **APP_BUILD_TAG** - the name of the build (tries BUILD_TAG if not set)
+* **ENV** - the name of the deployment environment, eg: staging
 
 Pushing healthcheck.json and ping.json existence to the API
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -43,9 +43,12 @@ And the admin at http://localhost:8000/admin/
 Configuration
 -------------
 
-The Django settings file is located in `po/settings/base.py`. To avoid committing
-sensitive data such as passwords and auth tokens to Github, you can put your
-development settings in `po/settings/local.py`, which is ignored by Git.
+The Django settings file is located in `po/settings/base.py`.
+
+.. note::
+  To avoid committing sensitive data such as passwords and auth tokens
+  to Github, you can put your development settings in `po/settings/local.py`,
+  which is ignored by Git.
 
 The main settings you might want to change are taken from the following
 environment variables:
@@ -81,7 +84,7 @@ Pushing healthcheck.json and ping.json existence to the API
 
 To check for the healthcheck.json and ping.json APIs in a deployment, add a
 build step to the Jenkins (or other CI) job which calls the
-`scripts/push_healthcheck_and_ping.sh` script.
+`scripts/push-healthcheck-and-ping.sh` script.
 
 This script will test that HTTP GET requests to the /healthcheck.json and
 /ping.json URLs return a 200 status code, and send that in a JSON payload to the

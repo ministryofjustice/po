@@ -47,8 +47,8 @@ Configuration
 Usage
 -----
 
-Submitting APT dependency information for a deployment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pushing APT dependency information for a deployment to the API
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To automatically submit APT package dependencies for an app on deployment by
 Jenkins (or other CI system), a build step needs to call the
@@ -62,6 +62,40 @@ The following environment variables need to be set:
   * **PROJECT** - the name of the project/app
   * **APP_BUILD_TAG** - the name of the build (tries BUILD_TAG if not set)
   * **ENV** - the name of the deployment environment, eg: staging
+
+Pushing healthcheck.json and ping.json existence to the API
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To check for the healthcheck.json and ping.json APIs in a deployment, add a
+build step to the Jenkins (or other CI) job which calls the
+`scripts/push_healthcheck_and_ping.sh` script.
+
+This script will test that HTTP GET requests to the /healthcheck.json and
+/ping.json URLs return a 200 status code, and send that in a JSON payload to the
+Platforms Overseer API.
+
+Pulling Ruby dependency information for all repositories
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To scan all ministryofjustice organisation repositories (public and private) for
+Ruby dependency information, run the following command on the PO server:..
+
+    python manage.py spider_github
+
+The script will gather metadata about every repository, including language
+usage, ruby gem dependencies and existence of Ruby or Python unit tests.
+
+Pulling recent incident count from Zendesk
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To get the number of incidents reported on products in the last two weeks (one
+of the IRAT checklist requirements is that there were less than two incidents in
+the last two weeks), run the following command:..
+
+    python manage.py check_incidents
+
+This command needs to be run on a regular interval to pick up new incidents. The
+PO server should have cron job that runs this command every day (or similar).
 
 
 Support

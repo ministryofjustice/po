@@ -19,7 +19,10 @@ def service_name(obj):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     change_form_template = 'admin/product_form.html'
-    list_display = ('name', service_name)
+    prepopulated_fields = {
+        'slug': ('name',),
+    }
+    list_display = ('name', service_name, 'slug')
 
 
 def dependencies(obj):

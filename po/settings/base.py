@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import sys
 
-PROJECT_ROOT = os.path.dirname(__file__)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 BASE_DIR = os.path.dirname(PROJECT_ROOT)
 
 
@@ -54,6 +54,7 @@ INSTALLED_APPS = (
     # project apps
     'core',
     'github',
+    'incident_response',
     'reports',
 )
 
@@ -126,7 +127,7 @@ STATICFILES_FINDERS = (
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
-GITHUB_TOKEN = '3efda15f265d0c64aab23267fa73027d4b2cf78e'
+GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
 
 REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
@@ -170,3 +171,16 @@ logging.config.dictConfig({
         },
     },
 })
+
+ZENDESK_API = {
+    'url': os.environ.get('ZENDESK_URL'),
+    'username': os.environ.get('ZENDESK_USERNAME'),
+    'password': os.environ.get('ZENDESK_PASSWORD')
+}
+
+# local.py overrides all the common settings.
+# XXX any settings appearing after this cannot be overridden in local.py
+try:
+    from .local import *
+except ImportError:
+    pass

@@ -18,6 +18,7 @@ class Service(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=30, unique=True)
+    slug = models.SlugField(max_length=30, unique=True, null=True)
     service = models.ForeignKey(Service, related_name='products', null=True)
 
     def __unicode__(self):
